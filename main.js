@@ -59,9 +59,11 @@ for (var i = 0; i < files.length; i++) {
     console.log(keys);
 
     for (var j = 0; j < stats.conversions.length; j++){
+        console.log(Object.keys(stats.conversions[j]));
         if (stats.conversions[j].playerIndex === Number(opponentIndex)){
             // todo: figure out ratio of neutral-win/counterattack
             // for each character
+            stats.conversions
         }
     }
 

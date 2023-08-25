@@ -36,6 +36,7 @@ for (var i = 0; i < files.length; i++) {
 
 const playerCode = Object.keys(sums).reduce((a, b) => sums[a] > sums[b] ? a : b);
 
+var stats = {}
 
 for (var i = 0; i < files.length; i++) {
     const game = new SlippiGame(files[i]);
@@ -51,10 +52,7 @@ for (var i = 0; i < files.length; i++) {
         opponentIndex = '0'
     }
 
-    var opponentCharacterIndex = null;
-    console.log (metadata);
-
-
+    var oppoChar = metadata.players[opponentIndex].characters;
 
     var stats = game.getStats();
     const keys = Object.keys(stats);
@@ -62,7 +60,8 @@ for (var i = 0; i < files.length; i++) {
 
     for (var j = 0; j < stats.conversions.length; j++){
         if (stats.conversions[j].playerIndex === Number(opponentIndex)){
-            //console.log(stats.conversions[j]);
+            // todo: figure out ratio of neutral-win/counterattack
+            // for each character
         }
     }
 

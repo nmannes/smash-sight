@@ -51,17 +51,22 @@ for (var i = 0; i < files.length; i++) {
         opponentIndex = '0'
     }
 
+    var opponentCharacterIndex = null;
+    console.log (metadata);
+
+
+
     var stats = game.getStats();
     const keys = Object.keys(stats);
     console.log(keys);
 
-    console.log(stats.conversions)
-
     for (var j = 0; j < stats.conversions.length; j++){
         if (stats.conversions[j].playerIndex === Number(opponentIndex)){
-            console.log(stats.conversions[j]);
+            //console.log(stats.conversions[j]);
         }
     }
 
     break;
 }
+
+

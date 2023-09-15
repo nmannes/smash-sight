@@ -1,5 +1,10 @@
 const { SlippiGame } = require("@slippi/slippi-js");
+const slp = require("@slippi/slippi-js");
+const crypto = require('crypto');
 const fs = require('fs');
+const { exec } = require('node:child_process')
+
+
 
 const path = '/home/nathan/Desktop/smash-sight/replays';
 var files = [];
@@ -11,12 +16,6 @@ fs.readdirSync(path).forEach(month => {
 });
 
 // determines player name to analyze
-
-
-const vectorizeConversion = (gameMetadata, moveList, frames, playerIndex) => {
-
-
-}
 
 var sums = {}
 for (var i = 0; i < files.length; i++) {
@@ -36,12 +35,9 @@ for (var i = 0; i < files.length; i++) {
 
 const playerCode = Object.keys(sums).reduce((a, b) => sums[a] > sums[b] ? a : b);
 
-var counts = {}
+var queue = [];
 
-for (var i = 0; i < files.length; i++) {
-    if (i % 15 === 0){
-        console.log(i / files.length)
-    }
+for (var i = 0; i < 1; i++) {
     const game = new SlippiGame(files[i]);
     const metadata = game.getMetadata();
     if (!metadata || !metadata.players || Object.keys(metadata.players).length !== 2) {
@@ -55,58 +51,32 @@ for (var i = 0; i < files.length; i++) {
         opponentIndex = '0'
     }
 
-    var oppoChar = metadata.players[opponentIndex].characters;
     var stats = game.getStats();
-
     for (var j = 0; j < stats.conversions.length; j++) {
         if (stats.conversions[j].playerIndex === Number(opponentIndex)) {
-            // todo: figure out ratio of neutral-win/counterattack
-            // for each character
-            counts[oppoChar] ||= {};
-            counts[oppoChar]['neutral-win'] ||= 0;
-            counts[oppoChar]['counter-attack'] ||= 0;
-            counts[oppoChar][stats.conversions[j].openingType] += 1;
+            queue.push({
+                path: files[i],
+                startFrame: stats.conversions[j].startFrame,
+                endFrame: stats.conversions[j].endFrame,
+            })
         }
     }
 }
-console.log(counts)
+
+const id = crypto.randomUUID()
+
+const jsonInput = [{
+    outputPath: `/home/nathan/Desktop/smash-sight/generated_videos/${id}.mp4`,
+    queue,
+}];
+
+const jsonFilePath = `/home/nathan/Desktop/smash-sight/generated_json/${id}.json`;
 
 
+fs.writeFileSync(jsonFilePath, JSON.stringify(jsonInput), function (err) {
+    if (err) throw err;
+    console.log('Saved!');
+}); 
 
-/*
-export declare enum Character {
-    CAPTAIN_FALCON = 0,
-    DONKEY_KONG = 1,
-    FOX = 2,
-    GAME_AND_WATCH = 3,
-    KIRBY = 4,
-    BOWSER = 5,
-    LINK = 6,
-    LUIGI = 7,
-    MARIO = 8,
-    MARTH = 9,
-    MEWTWO = 10,
-    NESS = 11,
-    PEACH = 12,
-    PIKACHU = 13,
-    ICE_CLIMBERS = 14,
-    JIGGLYPUFF = 15,
-    SAMUS = 16,
-    YOSHI = 17,
-    ZELDA = 18,
-    SHEIK = 19,
-    FALCO = 20,
-    YOUNG_LINK = 21,
-    DR_MARIO = 22,
-    ROY = 23,
-    PICHU = 24,
-    GANONDORF = 25,
-    MASTER_HAND = 26,
-    WIREFRAME_MALE = 27,
-    WIREFRAME_FEMALE = 28,
-    GIGA_BOWSER = 29,
-    CRAZY_HAND = 30,
-    SANDBAG = 31,
-    POPO = 32
-}
-*/
+
+exec(`cd ../slp-to-video; node slp_to_video ${jsonFilePath}`)

@@ -5,6 +5,7 @@ const fs = require('fs');
 const { exec } = require('node:child_process')
 
 
+exec(`rm -rf /tmp/tmp-*`);
 
 const path = '/home/nathan/Desktop/smash-sight/replays';
 var files = [];

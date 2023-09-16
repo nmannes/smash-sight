@@ -1,6 +1,8 @@
 
 const slp = require("@slippi/slippi-js");
 
+const { moveMappings } = require('./moves');
+
 const getPlayerCode = (files) => {
     var sums = {}
     for (var i = 0; i < files.length; i++) {
@@ -61,10 +63,6 @@ function splitBy(files, playerCode) {
     return filesByCharacter;
 }
 
-function vectorizeConversion(conversion) {
-
-}
-
 function vectorizeStage(stageId) {
     const stageIndex = {
         2: 0,
@@ -77,6 +75,17 @@ function vectorizeStage(stageId) {
     var vec = [0, 0, 0, 0, 0, 0];
     vec[stageIndex[stageId]] = 1;
     return vec;
+}
+
+function vectorizeMove(moveId) {
+    var ids = Object.keys(moveMappings);
+    console.log(moveId, ids)
+    return ids.map(id => {
+        if (moveId.toString() === id){
+            return 1;
+        }
+        return 0;
+    })
 }
 
 function analyzeFiles(files) {
@@ -93,13 +102,24 @@ function analyzeFiles(files) {
             const frames = indexedGame.game.getFrames();
             for (var j = 0; j < stats.conversions.length; j++) {
                 const conversion = stats.conversions[j];
-                if (conversion.playerIndex === indexedGame.opponentIndex && conversion.openingType === 'neutral-win') {
-                    const stageVec = vectorizeStage(settings.stageId);
-                    const resultsInDeath = conversion.didKill ? 1 : 0;
-                    const firstFrame = frames[conversion.startFrame];
-
-                    const vector = [stageVec, resultsInDeath,].flat();
+                if (!(conversion.playerIndex === indexedGame.opponentIndex && conversion.openingType === 'neutral-win') ){
+                    continue;
                 }
+                const stageVec = vectorizeStage(settings.stageId);
+                const resultsInDeath = conversion.didKill ? 1 : 0;
+                const firstFrame = frames[conversion.startFrame];
+
+                const heroState = firstFrame.players[indexedGame.playerIndex];
+                const villainState = firstFrame.players[indexedGame.opponentIndex];
+
+                const moveVec = vectorizeMove(conversion.moves[0].moveId);
+                const conversionVector = [
+                    stageVec, 
+                    resultsInDeath, 
+                    heroState.post.percent, 
+                    villainState.post.percent, 
+                    moveVec
+                ].flat();
             }
 
         }

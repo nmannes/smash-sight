@@ -1,8 +1,8 @@
-const slp = require("@slippi/slippi-js");
 const crypto = require('crypto');
 const fs = require('fs');
 const { exec } = require('node:child_process');
-const utils = require("./utils");
+
+const utils = require('./utils');
 
 
 exec(`rm -rf /tmp/tmp-*`);
@@ -16,31 +16,19 @@ fs.readdirSync(path).forEach(month => {
     })
 });
 
-// determines player name to analyze
-const playerCode = utils.getPlayerCode(files);
-
-var queue = [];
-
-for (var i = 0; i < 1; i++) {
-    const [game, _, opponentIndex] = utils.indexGame(files[i], playerCode);
-    var stats = game.getStats();
-    for (var j = 0; j < stats.conversions.length; j++) {
-        if (stats.conversions[j].playerIndex === Number(opponentIndex)) {
-            queue.push({
-                path: files[i],
-                startFrame: stats.conversions[j].startFrame,
-                endFrame: stats.conversions[j].endFrame,
-            })
-        }
-    }
-}
-
+const analyzedGames = utils.analyzeFiles(files)
+const jsonInput = [];
 const id = crypto.randomUUID()
 
-const jsonInput = [{
-    outputPath: `/home/nathan/Desktop/smash-sight/generated_videos/${id}.mp4`,
-    queue,
-}];
+for (key in analyzedGames) {
+    jsonInput.push(
+        {
+            outputPath: `/home/nathan/Desktop/smash-sight/generated_videos/${id}-${key}.mp4`,
+            queue: analyzedGames[key],
+        }
+    )
+}
+
 
 const jsonFilePath = `/home/nathan/Desktop/smash-sight/generated_json/${id}.json`;
 

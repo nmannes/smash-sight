@@ -1,13 +1,14 @@
-const { SlippiGame } = require("@slippi/slippi-js");
 
-function getPlayerCode(files) {
+const slp = require("@slippi/slippi-js");
+
+const getPlayerCode = (files) => {
     var sums = {}
     for (var i = 0; i < files.length; i++) {
-        const game = new SlippiGame(files[i]);
-        const metadata = game.getMetadata();
-        if (metadata && metadata.players) {
-            for (const key in metadata.players) {
-                const playerCode = metadata.players[key].names.code;
+        const game = new slp.SlippiGame(files[i]);
+        const settings = game.getSettings();
+        if (settings && settings.players) {
+            for (const key in settings.players) {
+                const playerCode = settings.players[key].connectCode;
                 if (playerCode in sums) {
                     sums[playerCode] += 1;
                 } else {
@@ -15,28 +16,99 @@ function getPlayerCode(files) {
                 }
             }
         }
-        return Object.keys(sums).reduce((a, b) => sums[a] > sums[b] ? a : b);
     }
+    return Object.keys(sums).reduce((a, b) => sums[a] > sums[b] ? a : b);
 }
 
 
-function indexGame(filepath, playerCode) {
-    const game = new SlippiGame(filepath);
-    const metadata = game.getMetadata();
-    if (!metadata || !metadata.players || Object.keys(metadata.players).length !== 2) {
-        return [];
+const indexGame = (filepath, playerCode) => {
+    const game = new slp.SlippiGame(filepath);
+    const settings = game.getSettings();
+    if (!settings || !settings.players || Object.keys(settings.players).length !== 2) {
+        return null;
     }
-    var playerIndex = '0'
-    var opponentIndex = '1'
-    if (metadata.players['0'].names.code !== playerCode) {
-        playerIndex = '1'
-        opponentIndex = '0'
+    var playerIndex = 0;
+    var opponentIndex = 1;
+    if (settings.players[0].connectCode !== playerCode) {
+        playerIndex = 1;
+        opponentIndex = 0;
     }
-    return [game, playerIndex, opponentIndex]
+    return { game, playerIndex, opponentIndex };
 }
 
+
+function splitBy(files, playerCode) {
+    const filesByCharacter = {};
+    for (var i = 0; i < files.length; i++) {
+
+        const indexedGame = indexGame(files[i], playerCode);
+        if (!indexedGame) {
+            continue;
+        }
+        const settings = indexedGame.game.getSettings();
+        // @ts-ignore
+        const key = slp.characters.getCharacterName(settings.players[indexedGame.opponentIndex].characterId);
+        filesByCharacter[key] ||= [];
+        filesByCharacter[key].push(files[i])
+    }
+
+    // culls if less than 20 games
+    for (var key in filesByCharacter) {
+        if (filesByCharacter[key].length < 20) {
+            delete filesByCharacter[key]
+        }
+    }
+    return filesByCharacter;
+}
+
+function vectorizeConversion(conversion) {
+
+}
+
+function vectorizeStage(stageId) {
+    const stageIndex = {
+        2: 0,
+        3: 1,
+        8: 2,
+        28: 3,
+        31: 4,
+        32: 5,
+    };
+    var vec = [0, 0, 0, 0, 0, 0];
+    vec[stageIndex[stageId]] = 1;
+    return vec;
+}
+
+function analyzeFiles(files) {
+    const playerCode = getPlayerCode(files);
+
+    const groupedGames = splitBy(files, playerCode);
+
+    for (char in groupedGames) {
+        const fileList = groupedGames[char];
+        for (var i = 0; i < fileList.length; i++) {
+            const indexedGame = indexGame(files[i], playerCode);
+            const settings = indexedGame.game.getSettings();
+            const stats = indexedGame.game.getStats();
+            const frames = indexedGame.game.getFrames();
+            for (var j = 0; j < stats.conversions.length; j++) {
+                const conversion = stats.conversions[j];
+                if (conversion.playerIndex === indexedGame.opponentIndex && conversion.openingType === 'neutral-win') {
+                    const stageVec = vectorizeStage(settings.stageId);
+                    const resultsInDeath = conversion.didKill ? 1 : 0;
+                    const firstFrame = frames[conversion.startFrame];
+
+                    const vector = [stageVec, resultsInDeath,].flat();
+                }
+            }
+
+        }
+    }
+
+
+    return {}
+}
 
 module.exports = {
-    getPlayerCode,
-    indexGame,
+    analyzeFiles
 }

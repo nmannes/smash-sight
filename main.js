@@ -1,8 +1,8 @@
-const crypto = require('crypto');
-const fs = require('fs');
-const { exec } = require('node:child_process');
+import 'crypto';
+import 'fs';
+import 'node:child_process';
 
-const utils = require('./utils');
+import analyzeFiles from './utils.js';
 
 
 exec(`rm -rf /tmp/tmp-*`);

@@ -1,8 +1,8 @@
 
-const slp = require("@slippi/slippi-js");
+import * as slp from "@slippi/slippi-js";
+import { moveMappings } from './moves.js';
 
-const { moveMappings } = require('./moves');
-
+import * as druid from '@saehrimnir/druidjs';
 const getPlayerCode = (files) => {
     var sums = {}
     for (var i = 0; i < files.length; i++) {
@@ -55,11 +55,13 @@ function splitBy(files, playerCode) {
     }
 
     // culls if less than 20 games
+    /*
     for (var key in filesByCharacter) {
         if (filesByCharacter[key].length < 20) {
             delete filesByCharacter[key]
         }
     }
+    */
     return filesByCharacter;
 }
 
@@ -117,14 +119,21 @@ function vectorizePlayers(indexedGame, conversion, frames) {
     return result.flat();
 }
 
-function analyzeFiles(files) {
+export function analyzeFiles(files) {
     const playerCode = getPlayerCode(files);
 
     const groupedGames = splitBy(files, playerCode);
 
     for (char in groupedGames) {
         const fileList = groupedGames[char];
+        if (char !== 'Dr. Mario') {
+            continue;
+        }
+        let data = [];
         for (var i = 0; i < fileList.length; i++) {
+            if (i % 10 === 0) {
+                console.log(i, fileList.length);
+            }
             const indexedGame = indexGame(files[i], playerCode);
             const settings = indexedGame.game.getSettings();
             const stats = indexedGame.game.getStats();
@@ -135,24 +144,18 @@ function analyzeFiles(files) {
                     continue;
                 }
 
-                const conversionVector = [
+                data.push([
                     conversion.didKill ? 1 : 0,
                     vectorizeStage(settings.stageId),
                     vectorizeMove(conversion.moves[0].moveId),
                     vectorizePlayers(indexedGame, conversion, frames),
-                ].flat();
-
-                console.log('~~~~~')
-                console.log(conversionVector);
+                ].flat())
             }
-
         }
+        let matrix = druid.Matrix.from(data);
+        console.log(matrix.to2dArray);
     }
 
 
     return {}
-}
-
-module.exports = {
-    analyzeFiles
 }

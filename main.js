@@ -37,4 +37,3 @@ fs.writeFileSync(jsonFilePath, JSON.stringify(jsonInput), function (err) {
 
 
 exec(`cd ../slp-to-video; node slp_to_video ${jsonFilePath}`)
-*/

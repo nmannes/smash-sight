@@ -1,8 +1,7 @@
 
-import * as slp from "@slippi/slippi-js";
-import { moveMappings } from './moves.js';
+const slp = require("@slippi/slippi-js");
+const { moveMappings } = require('./moves');
 
-import * as druid from '@saehrimnir/druidjs';
 const getPlayerCode = (files) => {
     var sums = {}
     for (var i = 0; i < files.length; i++) {
@@ -119,7 +118,8 @@ function vectorizePlayers(indexedGame, conversion, frames) {
     return result.flat();
 }
 
-export function analyzeFiles(files) {
+function vectorizeFiles(files) {
+    let fullData = {};
     const playerCode = getPlayerCode(files);
 
     const groupedGames = splitBy(files, playerCode);
@@ -130,10 +130,8 @@ export function analyzeFiles(files) {
             continue;
         }
         let data = [];
+        let labels = [];
         for (var i = 0; i < fileList.length; i++) {
-            if (i % 10 === 0) {
-                console.log(i, fileList.length);
-            }
             const indexedGame = indexGame(files[i], playerCode);
             const settings = indexedGame.game.getSettings();
             const stats = indexedGame.game.getStats();
@@ -143,19 +141,30 @@ export function analyzeFiles(files) {
                 if (!(conversion.playerIndex === indexedGame.opponentIndex && conversion.openingType === 'neutral-win')) {
                     continue;
                 }
-
                 data.push([
                     conversion.didKill ? 1 : 0,
                     vectorizeStage(settings.stageId),
                     vectorizeMove(conversion.moves[0].moveId),
                     vectorizePlayers(indexedGame, conversion, frames),
                 ].flat())
+                labels.push([
+                    slp.stages.getStageName(settings.stageId),
+                    slp.moves.getMoveName(conversion.moves[0].moveId),
+                    conversion.startFrame,
+                    conversion.endFrame,
+                    files[i]
+                ])
             }
         }
-        let matrix = druid.Matrix.from(data);
-        console.log(matrix.to2dArray);
+        fullData[char] = {
+            data,
+            labels
+        }
     }
 
+    return fullData;
+}
 
-    return {}
+module.exports = {
+    vectorizeFiles
 }

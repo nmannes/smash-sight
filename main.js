@@ -1,8 +1,7 @@
-import 'crypto';
-import 'fs';
-import 'node:child_process';
-
-import analyzeFiles from './utils.js';
+const crypto = require('crypto');
+const fs = require('fs');
+var { exec, spawn } = require('child_process');
+const { vectorizeFiles } = require('./utils');
 
 
 exec(`rm -rf /tmp/tmp-*`);
@@ -15,11 +14,20 @@ fs.readdirSync(path).forEach(month => {
         files.push(`${folderPath}/${file}`);
     })
 });
-
-const analyzedGames = utils.analyzeFiles(files)
-const jsonInput = [];
+console.log('vectorizing files');
+const gameData = vectorizeFiles(files);
 const id = crypto.randomUUID()
 
+const dataPath = `./generated_data/${id}.json`
+
+fs.writeFileSync(dataPath, JSON.stringify(gameData))
+
+console.log('running python analysis')
+
+spawn('python3', ['main.py', dataPath], { stdio: 'inherit' });
+
+console.log('generating replays')
+/*
 for (key in analyzedGames) {
     jsonInput.push(
         {
@@ -32,7 +40,6 @@ for (key in analyzedGames) {
 
 const jsonFilePath = `/home/nathan/Desktop/smash-sight/generated_json/${id}.json`;
 
-
 fs.writeFileSync(jsonFilePath, JSON.stringify(jsonInput), function (err) {
     if (err) throw err;
     console.log('Saved!');
@@ -40,3 +47,4 @@ fs.writeFileSync(jsonFilePath, JSON.stringify(jsonInput), function (err) {
 
 
 exec(`cd ../slp-to-video; node slp_to_video ${jsonFilePath}`)
+*/

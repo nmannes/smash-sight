@@ -1,4 +1,4 @@
-export const moveMappings = {
+const moveMappings = {
 	"1": {
 	name: "Miscellaneous",
 	shortName: "misc"
@@ -122,4 +122,6 @@ export const moveMappings = {
 };
 
 
-export default moveMappings;
+module.exports = {
+	moveMappings
+}

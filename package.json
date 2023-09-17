@@ -1,5 +1,4 @@
 {
-  "type":"module",
   "dependencies": {
     "@saehrimnir/druidjs": "^0.7.3",
     "@slippi/slippi-js": "^6.7.0",

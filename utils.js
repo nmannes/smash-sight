@@ -142,8 +142,8 @@ function vectorizeFiles(files) {
                 data.push([
                     conversion.didKill ? 1 : 0,
                     vectorizeStage(settings.stageId),
-                    vectorizeMove(conversion.moves[0].moveId),
-                    vectorizePlayers(indexedGame, conversion, frames),
+                    // vectorizeMove(conversion.moves[0].moveId),
+                    // vectorizePlayers(indexedGame, conversion, frames),
                 ].flat())
                 labels.push([
                     slp.stages.getStageName(settings.stageId),

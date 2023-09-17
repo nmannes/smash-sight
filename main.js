@@ -27,16 +27,6 @@ console.log('running python analysis')
 spawn('python3', ['main.py', dataPath], { stdio: 'inherit' });
 
 console.log('generating replays')
-/*
-for (key in analyzedGames) {
-    jsonInput.push(
-        {
-            outputPath: `/home/nathan/Desktop/smash-sight/generated_videos/${id}-${key}.mp4`,
-            queue: analyzedGames[key],
-        }
-    )
-}
-
 
 const jsonFilePath = `/home/nathan/Desktop/smash-sight/generated_json/${id}.json`;
 

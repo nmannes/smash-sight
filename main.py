@@ -19,9 +19,9 @@ for character in data.keys():
     clusters = {}
     for i, cluster in enumerate(clustering.labels_):
         if cluster in clusters:
-            clusters[cluster].append(data[character]['label'][i])
+            clusters[cluster].append(data[character]['labels'][i])
         else:
-            clusters[cluster] = [data[character]['label'][i]]
+            clusters[cluster] = [data[character]['labels'][i]]
     queue = []
     for key, clip in clusters:
         queue.append({

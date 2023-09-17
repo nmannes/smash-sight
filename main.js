@@ -19,7 +19,7 @@ const gameData = vectorizeFiles(files);
 const id = crypto.randomUUID()
 
 
-fs.writeFileSync(dataPath, JSON.stringify(gameData))
+fs.writeFileSync(`./generated_data/${id}.json`, JSON.stringify(gameData))
 
 console.log('running python analysis')
 

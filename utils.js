@@ -130,12 +130,15 @@ function vectorizeFiles(files) {
         let data = [];
         let labels = [];
         for (var i = 0; i < fileList.length; i++) {
+            if (i > 20) break;
             const indexedGame = indexGame(files[i], playerCode);
             const settings = indexedGame.game.getSettings();
             const stats = indexedGame.game.getStats();
             const frames = indexedGame.game.getFrames();
-            for (var j = 0; j < fileList.length || j < 10; j++) {
+            for (var j = 0; j < fileList.length; j++) {
                 const conversion = stats.conversions[j];
+                if (!conversion) continue;
+
                 if (!(conversion.playerIndex === indexedGame.opponentIndex && conversion.openingType === 'neutral-win')) {
                     continue;
                 }
@@ -159,6 +162,7 @@ function vectorizeFiles(files) {
             labels
         }
         console.log(char, 'end')
+        break;
     }
 
     return fullData;

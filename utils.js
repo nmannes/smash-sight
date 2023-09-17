@@ -130,7 +130,7 @@ function vectorizeFiles(files) {
         let data = [];
         let labels = [];
         for (var i = 0; i < fileList.length; i++) {
-            if (i > 20) break;
+            if (i > 8) break;
             const indexedGame = indexGame(files[i], playerCode);
             const settings = indexedGame.game.getSettings();
             const stats = indexedGame.game.getStats();
@@ -145,7 +145,7 @@ function vectorizeFiles(files) {
                 data.push([
                     conversion.didKill ? 1 : 0,
                     vectorizeStage(settings.stageId),
-                    // vectorizeMove(conversion.moves[0].moveId),
+                    vectorizeMove(conversion.moves[0].moveId),
                     // vectorizePlayers(indexedGame, conversion, frames),
                 ].flat())
                 labels.push([

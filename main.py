@@ -5,13 +5,13 @@ import matplotlib.pyplot as plt
 from sklearn.cluster import AffinityPropagation
 
 run_id = sys.argv[-1]
-data = json.loads(open('{}.json'.format(run_id), 'r').read())
+data = json.loads(open('./generated_data/{}.json'.format(run_id), 'r').read())
 
 
 os.mkdir('./generated_videos/{}'.format(run_id))
 video_data = []
-
 output = []
+
 for character in data.keys():
     os.mkdir('./generated_videos/{}/{}'.format(run_id, character))
     print(character)

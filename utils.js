@@ -134,7 +134,7 @@ function vectorizeFiles(files) {
             const settings = indexedGame.game.getSettings();
             const stats = indexedGame.game.getStats();
             const frames = indexedGame.game.getFrames();
-            for (var j = 0; j < stats.conversions.length; j++) {
+            for (var j = 0; j < fileList.length || j < 10; j++) {
                 const conversion = stats.conversions[j];
                 if (!(conversion.playerIndex === indexedGame.opponentIndex && conversion.openingType === 'neutral-win')) {
                     continue;

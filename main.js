@@ -18,13 +18,12 @@ console.log('vectorizing files');
 const gameData = vectorizeFiles(files);
 const id = crypto.randomUUID()
 
-const dataPath = `./generated_data/${id}.json`
 
 fs.writeFileSync(dataPath, JSON.stringify(gameData))
 
 console.log('running python analysis')
 
-spawn('python3', ['main.py', dataPath], { stdio: 'inherit' });
+spawn('python3', ['main.py', id], { stdio: 'inherit' });
 
 console.log('generating replays')
 

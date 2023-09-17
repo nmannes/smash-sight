@@ -126,9 +126,7 @@ function vectorizeFiles(files) {
 
     for (char in groupedGames) {
         const fileList = groupedGames[char];
-        if (char !== 'Dr. Mario') {
-            continue;
-        }
+        console.log(char, 'start', fileList.length)
         let data = [];
         let labels = [];
         for (var i = 0; i < fileList.length; i++) {
@@ -160,6 +158,7 @@ function vectorizeFiles(files) {
             data,
             labels
         }
+        console.log(char, 'end')
     }
 
     return fullData;

@@ -79,13 +79,42 @@ function vectorizeStage(stageId) {
 
 function vectorizeMove(moveId) {
     var ids = Object.keys(moveMappings);
-    console.log(moveId, ids)
     return ids.map(id => {
-        if (moveId.toString() === id){
+        if (moveId.toString() === id) {
             return 1;
         }
         return 0;
     })
+}
+
+function vectorizePlayers(indexedGame, conversion, frames) {
+    const frameAnalysisEnd = conversion.moves[0].frame;
+    const moveLanded = frames[frameAnalysisEnd];
+    const heroMLS = moveLanded.players[indexedGame.playerIndex];
+    const endXH = heroMLS.post.positionX;
+    const endYH = heroMLS.post.positionY;
+    const villainMLS = moveLanded.players[indexedGame.opponentIndex];
+    const endXV = villainMLS.post.positionX;
+    const endYV = villainMLS.post.positionY;
+
+    var result = [
+        Math.trunc(heroMLS.pre.percent),
+        Math.trunc(villainMLS.pre.percent),
+    ];
+
+    for (var i = 1; i < 10; i++) {
+        const preFrame = frames[frameAnalysisEnd - (3 * i)]
+        const hero = preFrame.players[indexedGame.playerIndex];
+        const villain = preFrame.players[indexedGame.opponentIndex];
+        result.push([
+            endXH - hero.post.positionX,
+            endYH - hero.post.positionY,
+            endXV - villain.post.positionX,
+            endYV - villain.post.positionY,
+        ])
+    }
+
+    return result.flat();
 }
 
 function analyzeFiles(files) {
@@ -102,24 +131,19 @@ function analyzeFiles(files) {
             const frames = indexedGame.game.getFrames();
             for (var j = 0; j < stats.conversions.length; j++) {
                 const conversion = stats.conversions[j];
-                if (!(conversion.playerIndex === indexedGame.opponentIndex && conversion.openingType === 'neutral-win') ){
+                if (!(conversion.playerIndex === indexedGame.opponentIndex && conversion.openingType === 'neutral-win')) {
                     continue;
                 }
-                const stageVec = vectorizeStage(settings.stageId);
-                const resultsInDeath = conversion.didKill ? 1 : 0;
-                const firstFrame = frames[conversion.startFrame];
 
-                const heroState = firstFrame.players[indexedGame.playerIndex];
-                const villainState = firstFrame.players[indexedGame.opponentIndex];
-
-                const moveVec = vectorizeMove(conversion.moves[0].moveId);
                 const conversionVector = [
-                    stageVec, 
-                    resultsInDeath, 
-                    heroState.post.percent, 
-                    villainState.post.percent, 
-                    moveVec
+                    conversion.didKill ? 1 : 0,
+                    vectorizeStage(settings.stageId),
+                    vectorizeMove(conversion.moves[0].moveId),
+                    vectorizePlayers(indexedGame, conversion, frames),
                 ].flat();
+
+                console.log('~~~~~')
+                console.log(conversionVector);
             }
 
         }

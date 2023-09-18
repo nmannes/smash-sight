@@ -135,7 +135,7 @@ function vectorizeFiles(files) {
             const settings = indexedGame.game.getSettings();
             const stats = indexedGame.game.getStats();
             const frames = indexedGame.game.getFrames();
-            for (var j = 0; j < fileList.length; j++) {
+            for (var j = 0; j < stats.conversions.length; j++) {
                 const conversion = stats.conversions[j];
                 if (!conversion) continue;
 

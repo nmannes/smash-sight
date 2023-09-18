@@ -130,7 +130,6 @@ function vectorizeFiles(files) {
         let data = [];
         let labels = [];
         for (var i = 0; i < fileList.length; i++) {
-            if (i > 8) break;
             const indexedGame = indexGame(files[i], playerCode);
             const settings = indexedGame.game.getSettings();
             const stats = indexedGame.game.getStats();
@@ -161,8 +160,6 @@ function vectorizeFiles(files) {
             data,
             labels
         }
-        console.log(char, 'end')
-        break;
     }
 
     return fullData;

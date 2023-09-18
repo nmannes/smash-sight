@@ -1,6 +1,6 @@
 const crypto = require('crypto');
 const fs = require('fs');
-var { exec, spawn } = require('child_process');
+var { exec, execSync } = require('child_process');
 const { vectorizeFiles } = require('./utils');
 
 
@@ -23,16 +23,23 @@ fs.writeFileSync(`./generated_data/${id}.json`, JSON.stringify(gameData))
 
 console.log('running python analysis')
 
-spawn('python3', ['main.py', id], { stdio: 'inherit' });
+
+execSync(`python3 main.py ${id}`, (error, stdout, stderr) => {
+    console.log(`stdout: ${stdout}`);
+    console.log(`stderr: ${stderr}`);
+    if (error !== null) {
+        console.log(`exec error: ${error}`);
+    }   
+});
 
 console.log('generating replays')
 
 const jsonFilePath = `/home/nathan/Desktop/smash-sight/generated_json/${id}.json`;
 
-fs.writeFileSync(jsonFilePath, JSON.stringify(jsonInput), function (err) {
-    if (err) throw err;
-    console.log('Saved!');
+execSync(`cd ../slp-to-video; node slp_to_video ${jsonFilePath}`, (error, stdout, stderr) => {
+    console.log(`stdout: ${stdout}`);
+    console.log(`stderr: ${stderr}`);
+    if (error !== null) {
+        console.log(`exec error: ${error}`);
+    }   
 });
-
-
-exec(`cd ../slp-to-video; node slp_to_video ${jsonFilePath}`)

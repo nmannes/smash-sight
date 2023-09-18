@@ -1,10 +1,12 @@
 import sys
 import os
+import time
 import json
 import matplotlib.pyplot as plt
 from sklearn.cluster import AffinityPropagation
 
 run_id = sys.argv[-1]
+
 data = json.loads(open('./generated_data/{}.json'.format(run_id), 'r').read())
 
 
@@ -38,3 +40,5 @@ for character in data.keys():
 f = open('./generated_json/{}.json'.format(run_id), 'w')
 f.write(json.dumps(output))
 f.close()
+
+print ('done python')

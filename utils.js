@@ -103,8 +103,8 @@ function vectorizePlayers(indexedGame, conversion, frames) {
         Math.trunc(villainMLS.pre.percent),
     ];
 
-    for (var i = 1; i < 10; i++) {
-        const preFrame = frames[frameAnalysisEnd - (3 * i)]
+    for (var i = 0; i < 5; i++) {
+        const preFrame = frames[frameAnalysisEnd - (5 * i)]
         const hero = preFrame.players[indexedGame.playerIndex];
         const villain = preFrame.players[indexedGame.opponentIndex];
         result.push([
@@ -146,7 +146,7 @@ function vectorizeFiles(files) {
                     conversion.didKill ? 1 : 0,
                     vectorizeStage(settings.stageId),
                     vectorizeMove(conversion.moves[0].moveId),
-                    // vectorizePlayers(indexedGame, conversion, frames),
+                    vectorizePlayers(indexedGame, conversion, frames),
                 ].flat())
                 labels.push([
                     slp.stages.getStageName(settings.stageId),

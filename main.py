@@ -2,7 +2,7 @@ import sys
 import os
 import time
 import json
-import matplotlib.pyplot as plt
+import numpy as np
 from sklearn.cluster import AffinityPropagation
 
 run_id = sys.argv[-1]
@@ -17,7 +17,9 @@ output = []
 
 for character in data.keys():
     # os.mkdir('./generated_videos/{}/{}'.format(run_id, character))
-    clustering = AffinityPropagation(random_state=5).fit(data[character]['data'])
+    x = np.array(data[character]['data'])
+    x_normed = (x - x.min(0)) / x.ptp(0)
+    clustering = AffinityPropagation(random_state=5).fit(x_normed)
     clusters = {}
     for i, cluster in enumerate(clustering.labels_):
         if cluster in clusters:

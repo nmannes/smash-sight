@@ -16,7 +16,6 @@ output = []
 
 for character in data.keys():
     # os.mkdir('./generated_videos/{}/{}'.format(run_id, character))
-    print(character)
     clustering = AffinityPropagation(random_state=5).fit(data[character]['data'])
     clusters = {}
     for i, cluster in enumerate(clustering.labels_):
@@ -24,6 +23,7 @@ for character in data.keys():
             clusters[cluster].append(data[character]['labels'][i])
         else:
             clusters[cluster] = [data[character]['labels'][i]]
+    print(character, len(clusters.keys()))
     queue = []
     for key in clusters:
         for conv in clusters[key]:

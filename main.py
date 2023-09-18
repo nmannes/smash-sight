@@ -11,13 +11,16 @@ data = json.loads(open('./generated_data/{}.json'.format(run_id), 'r').read())
 
 MAX_CLUSTER_COUNT = 15
 
-# os.mkdir('./generated_videos/{}'.format(run_id))
+os.mkdir('./generated_videos/{}'.format(run_id))
 video_data = []
 output = []
 
 for character in data.keys():
-    # os.mkdir('./generated_videos/{}/{}'.format(run_id, character))
+    os.mkdir('./generated_videos/{}/{}'.format(run_id, character))
     x = np.array(data[character]['data'])
+    x = x.round(decimals=3)
+    idx = np.argwhere(np.all(x[..., :] == 0, axis=0))
+    removed_zeros = np.delete(x, idx, axis=1)
     x_normed = (x - x.min(0)) / x.ptp(0)
     clustering = AffinityPropagation(random_state=5).fit(x_normed)
     clusters = {}

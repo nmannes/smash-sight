@@ -21,7 +21,7 @@ for character in data.keys():
     x = x.round(decimals=3)
     idx = np.argwhere(np.all(x[..., :] == 0, axis=0))
     removed_zeros = np.delete(x, idx, axis=1)
-    x_normed = (x - x.min(0)) / x.ptp(0)
+    x_normed = (removed_zeros - removed_zeros.min(0)) / removed_zeros.ptp(0)
     clustering = AffinityPropagation(random_state=5).fit(x_normed)
     clusters = {}
     for i, cluster in enumerate(clustering.labels_):

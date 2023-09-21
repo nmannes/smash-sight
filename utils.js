@@ -174,10 +174,10 @@ function vectorizePlayersV2(indexedGame, frames, frameIndex, numFrames = 5) {
 }
 
 
-function randomList(n) {
+function randomList(n, range) {
     var arr = [];
     while (arr.length < n) {
-        var r = Math.floor(Math.random() * 100) + 1;
+        var r = _.random(range)
         if (arr.indexOf(r) === -1) arr.push(r);
     }
     return arr;
@@ -249,15 +249,16 @@ function vectorizeFilesV2(files) {
             if (i % 25 === 0 && i > 0) console.log('pct complete:', i / fileList.length);
             const indexedGame = indexGame(files[i], playerCode);
             const frames = indexedGame.game.getFrames();
-            if (!md.lastFrame) {
-                continue;
-            }
+            const maxFrame = _.max(_.keys(frames).map(n => _.toNumber(n)));
             const settings = indexedGame.game.getSettings();
-            const md = indexedGame.game.getMetadata();
             const chosenFrames = randomList(
-                Math.floor((md.lastFrame - 200) / 100)
+                Math.floor((maxFrame - 120) * .01),
+                maxFrame - 120
             ).map(x => x + 20);
-            for (j in chosenFrames) {
+            console.log(files[i]);
+            for (var j = 0; j < chosenFrames.length; j++) {
+                const f = chosenFrames[j];
+                console.log('vectorizing frame', f)
                 let dataRow = [
                     vectorizeStage(settings.stageId),
                 ]
@@ -278,11 +279,14 @@ function vectorizeFilesV2(files) {
                     );
                 }
                 let labelRow = [
-                    files[i],
-                    vectorizePlayerStateV2(indexedGame.playerIndex, frames, j + 5),
-                    vectorizePlayerStateV2(indexedGame.playerIndex, frames, j + 10),
-                    vectorizePlayerStateV2(indexedGame.playerIndex, frames, j + 20),
-                    vectorizePlayerStateV2(indexedGame.playerIndex, frames, j + 40),
+                    [
+                        files[i],
+                        f,
+                    ],
+                    vectorizePlayerStateV2(indexedGame.playerIndex, frames, f + 5),
+                    vectorizePlayerStateV2(indexedGame.playerIndex, frames, f + 10),
+                    vectorizePlayerStateV2(indexedGame.playerIndex, frames, f + 20),
+                    vectorizePlayerStateV2(indexedGame.playerIndex, frames, f + 40),
                 ];
                 data.push(dataRow.flat());
                 labelRow.push(labelRow);

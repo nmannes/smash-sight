@@ -23,7 +23,7 @@ fs.writeFileSync(`./generated_data/${id}.json`, JSON.stringify(gameData))
 
 console.log('running python analysis')
 
-
+/*
 execSync(`python3 main.py ${id}`, (error, stdout, stderr) => {
     console.log(`stdout: ${stdout}`);
     console.log(`stderr: ${stderr}`);
@@ -43,3 +43,5 @@ execSync(`cd ../slp-to-video; node slp_to_video ${jsonFilePath}`, (error, stdout
         console.log(`exec error: ${error}`);
     }   
 });
+
+*/

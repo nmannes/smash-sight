@@ -246,19 +246,18 @@ function vectorizeFilesV2(files) {
         let data = [];
         let labels = [];
         for (var i = 0; i < fileList.length; i++) {
-            if (i % 25 === 0 && i > 0) console.log('pct complete:', i / fileList.length);
+            if (i % 25 === 0 && i > 0) console.log(char, 'pct complete:', i / fileList.length);
             const indexedGame = indexGame(files[i], playerCode);
             const frames = indexedGame.game.getFrames();
             const maxFrame = _.max(_.keys(frames).map(n => _.toNumber(n)));
+            if (maxFrame < 30 * 60) continue;
             const settings = indexedGame.game.getSettings();
             const chosenFrames = randomList(
                 Math.floor((maxFrame - 120) * .01),
                 maxFrame - 120
             ).map(x => x + 20);
-            console.log(files[i]);
             for (var j = 0; j < chosenFrames.length; j++) {
                 const f = chosenFrames[j];
-                console.log('vectorizing frame', f)
                 let dataRow = [
                     vectorizeStage(settings.stageId),
                 ]

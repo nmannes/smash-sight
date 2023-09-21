@@ -88,7 +88,7 @@ function vectorizeMove(moveId) {
     })
 }
 
-function vectorizePlayers(indexedGame, conversion, frames) {
+function vectorizePlayers(indexedGame, conversion, frames, numFrames=5) {
     const frameAnalysisEnd = conversion.moves[0].frame;
     const moveLanded = frames[frameAnalysisEnd];
     const heroMLS = moveLanded.players[indexedGame.playerIndex];
@@ -103,8 +103,8 @@ function vectorizePlayers(indexedGame, conversion, frames) {
         Math.trunc(villainMLS.pre.percent),
     ];
 
-    for (var i = 0; i < 5; i++) {
-        const preFrame = frames[frameAnalysisEnd - (5 * i)]
+    for (var i = 0; i < numFrames; i++) {
+        const preFrame = frames[frameAnalysisEnd - (4 * i)]
         const hero = preFrame.players[indexedGame.playerIndex];
         const villain = preFrame.players[indexedGame.opponentIndex];
         result.push([

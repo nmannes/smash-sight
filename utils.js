@@ -1,4 +1,5 @@
 
+const _ = require('lodash');
 const slp = require("@slippi/slippi-js");
 const { moveMappings } = require('./moves');
 
@@ -88,7 +89,7 @@ function vectorizeMove(moveId) {
     })
 }
 
-function vectorizePlayers(indexedGame, conversion, frames, numFrames=5) {
+function vectorizePlayers(indexedGame, conversion, frames, numFrames = 5) {
     const frameAnalysisEnd = conversion.moves[0].frame;
     const moveLanded = frames[frameAnalysisEnd];
     const heroMLS = moveLanded.players[indexedGame.playerIndex];
@@ -104,7 +105,8 @@ function vectorizePlayers(indexedGame, conversion, frames, numFrames=5) {
     ];
 
     for (var i = 0; i < numFrames; i++) {
-        const preFrame = frames[frameAnalysisEnd - (4 * i)]
+        const frameIndex = frameAnalysisEnd - (4 * i);
+        const preFrame = frames[frameIndex]
         const hero = preFrame.players[indexedGame.playerIndex];
         const villain = preFrame.players[indexedGame.opponentIndex];
         result.push([
@@ -116,6 +118,69 @@ function vectorizePlayers(indexedGame, conversion, frames, numFrames=5) {
     }
 
     return result.flat();
+}
+
+function vectorizePlayerStateV2(playerIndex, frames, frameIndex) {
+    const hero = frames[frameIndex].players[playerIndex];
+    var data = _.pick(hero,
+        [
+            'positionX',
+            'positionY',
+            'facingDirection',
+            'percent',
+            'shieldSize',
+            'isAirborne' ? 1 : 0,
+            'jumpsRemaining',
+            'lCancelStatus',
+        ]
+    );
+    var speeds = _.pick(hero.selfInducedSpeeds, [
+        'airX',
+        'y',
+        'attackX',
+        'attackY',
+        'groundX',
+    ]);
+    return [data, speeds].flat();
+}
+
+function vectorizePlayersV2(indexedGame, frames, frameIndex, numFrames = 5) {
+    const analyzedFrame = frames[frameIndex];
+    const heroState = analyzedFrame.players[indexedGame.playerIndex];
+    const endXH = heroState.post.positionX;
+    const endYH = heroState.post.positionY;
+    const villainState = analyzedFrame.players[indexedGame.opponentIndex];
+    const endXV = villainState.post.positionX;
+    const endYV = villainState.post.positionY;
+
+    var result = [
+        Math.trunc(heroState.pre.percent),
+        Math.trunc(villainState.pre.percent),
+    ];
+
+    for (var i = 0; i < numFrames; i++) {
+        const preFrame = frames[frameIndex]
+        const hero = preFrame.players[indexedGame.playerIndex];
+        const villain = preFrame.players[indexedGame.opponentIndex];
+        result.push([
+            endXH - hero.post.positionX,
+            endYH - hero.post.positionY,
+            endXV - villain.post.positionX,
+            endYV - villain.post.positionY,
+        ])
+    }
+
+    return result.flat();
+}
+
+
+function randomList(n) {
+    var arr = [];
+    while (arr.length < n) {
+        var r = Math.floor(Math.random() * 100) + 1;
+        if (arr.indexOf(r) === -1) arr.push(r);
+    }
+    return arr;
 }
 
 function vectorizeFiles(files) {
@@ -166,6 +231,73 @@ function vectorizeFiles(files) {
     return fullData;
 }
 
+// vectorize a random 2% frames of the files
+// Given the state of a frame:
+// let's get enough info to predict my future position/percent/move in the future.
+function vectorizeFilesV2(files) {
+    let fullData = {};
+    const playerCode = getPlayerCode(files);
+
+    const groupedGames = splitBy(files, playerCode);
+
+    for (char in groupedGames) {
+        const fileList = groupedGames[char];
+        console.log(char, 'start', fileList.length)
+        let data = [];
+        let labels = [];
+        for (var i = 0; i < fileList.length; i++) {
+            if (i % 25 === 0 && i > 0) console.log('pct complete:', i / fileList.length);
+            const indexedGame = indexGame(files[i], playerCode);
+            const frames = indexedGame.game.getFrames();
+            if (!md.lastFrame) {
+                continue;
+            }
+            const settings = indexedGame.game.getSettings();
+            const md = indexedGame.game.getMetadata();
+            const chosenFrames = randomList(
+                Math.floor((md.lastFrame - 50) / 100)
+            ).map(x => x + 20);
+            for (j in chosenFrames) {
+                let dataRow = [
+                    vectorizeStage(settings.stageId),
+                ]
+                for (var k = 0; k < 4; k++) {
+                    dataRow.push(
+                        vectorizePlayerStateV2(
+                            indexedGame.playerIndex,
+                            frames,
+                            j - (k * 5)
+                        )
+                    );
+                    dataRow.push(
+                        vectorizePlayerStateV2(
+                            indexedGame.opponentIndex,
+                            frames,
+                            j - (k * 5)
+                        )
+                    );
+                }
+                let labelRow = [
+                    files[i],
+                    vectorizePlayerStateV2(indexedGame.playerIndex, frames, j + 5),
+                    vectorizePlayerStateV2(indexedGame.playerIndex, frames, j + 10),
+                    vectorizePlayerStateV2(indexedGame.playerIndex, frames, j + 15),
+                    vectorizePlayerStateV2(indexedGame.playerIndex, frames, j + 20),
+                ];
+                data.push(dataRow.flat());
+                labelRow.push(labelRow);
+            }
+
+        }
+        fullData[char] = {
+            data,
+            labels
+        }
+    }
+
+    return fullData;
+}
+
 module.exports = {
-    vectorizeFiles
+    vectorizeFilesV2
 }

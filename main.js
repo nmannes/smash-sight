@@ -1,10 +1,10 @@
 const crypto = require('crypto');
 const fs = require('fs');
 var { exec, execSync } = require('child_process');
-const { vectorizeFiles } = require('./utils');
+const { vectorizeFilesV2 } = require('./utils');
 
 
-exec(`rm -rf /tmp/tmp-*`);
+execSync(`rm -rf /tmp/tmp-*`);
 
 const path = '/home/nathan/Desktop/smash-sight/replays';
 var files = [];
@@ -15,7 +15,7 @@ fs.readdirSync(path).forEach(month => {
     })
 });
 console.log('vectorizing files');
-const gameData = vectorizeFiles(files);
+const gameData = vectorizeFilesV2(files);
 const id = crypto.randomUUID()
 
 

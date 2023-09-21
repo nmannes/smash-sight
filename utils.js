@@ -255,7 +255,7 @@ function vectorizeFilesV2(files) {
             const settings = indexedGame.game.getSettings();
             const md = indexedGame.game.getMetadata();
             const chosenFrames = randomList(
-                Math.floor((md.lastFrame - 50) / 100)
+                Math.floor((md.lastFrame - 200) / 100)
             ).map(x => x + 20);
             for (j in chosenFrames) {
                 let dataRow = [
@@ -281,8 +281,8 @@ function vectorizeFilesV2(files) {
                     files[i],
                     vectorizePlayerStateV2(indexedGame.playerIndex, frames, j + 5),
                     vectorizePlayerStateV2(indexedGame.playerIndex, frames, j + 10),
-                    vectorizePlayerStateV2(indexedGame.playerIndex, frames, j + 15),
                     vectorizePlayerStateV2(indexedGame.playerIndex, frames, j + 20),
+                    vectorizePlayerStateV2(indexedGame.playerIndex, frames, j + 40),
                 ];
                 data.push(dataRow.flat());
                 labelRow.push(labelRow);

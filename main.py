@@ -25,7 +25,7 @@ for character in data.keys():
                     st[key] += 1
                 else:
                     st[key] = 1
-    pprint.pprint(sorted(list(st.iteritems()), reverse=True, key=lambda a: a[1])[:10])
+    pprint.pprint(sorted(list(st.iteritems()), reverse=True, key=lambda a: a[1])[:20])
 
 
 '''

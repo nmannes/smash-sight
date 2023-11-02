@@ -301,6 +301,42 @@ function vectorizeFilesV2(files) {
     return fullData;
 }
 
+// vectorizeFilesV3: let's get all the data on our own combos
+function vectorizeFilesV3(files) {
+    let fullData = {};
+    const playerCode = getPlayerCode(files);
+
+    const groupedGames = splitBy(files, playerCode);
+
+    for (char in groupedGames) {
+        const fileList = groupedGames[char];
+        console.log(char, 'start', fileList.length)
+        fullData[char] = []
+        for (var i = 0; i < fileList.length; i++) {
+            if (i % 25 === 0 && i > 0) console.log(char, 'pct complete:', i / fileList.length);
+            const indexedGame = indexGame(files[i], playerCode);
+            const stats = indexedGame.game.getStats();
+            const convs = stats.conversions.filter(c =>
+                c.playerIndex == indexedGame.opponentIndex &&
+                c.didKill || c.endPercent - c.startPercent > 20
+            );
+            _.forEach(convs, c => {
+                fullData[char].push([
+                    char,
+                    files[i],
+                    c.startFrame,
+                    c.moves[c.moves.length - 1].frame,
+                    c.moves.map(m => moveMappings[m.moveId]),
+                    c.moves.map(m => m.frame),
+                ])
+            })
+        }
+    }
+
+    return fullData;
+}
+
+
 module.exports = {
-    vectorizeFilesV2
+    vectorizeFilesV3
 }

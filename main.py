@@ -2,7 +2,7 @@ import sys
 import os
 import json
 import pprint
-from collections import OrderedDict 
+import pygtrie as trie
 
 run_id = sys.argv[-1]
 
@@ -16,16 +16,16 @@ for character in data.keys():
     # os.mkdir('./generated_videos/{}/{}'.format(run_id, character))
     if character != 'Captain Falcon':
         continue
-    dd = {}
+    st = trie.StringTrie()
     for combo in data[character]:
         for i in range(len(combo[4])):
-            key = f"{combo[4][:i]}"
-            if key in dd:
-                dd[key] += 1
-            else:
-                dd[key] = 1 
-    for r in sorted(dd, key=dd.get, reverse=False):
-        print(r, dd[r])
+            if len(combo[4][:i]) > 0:
+                key = f"{'/'.join(combo[4][:i])}"
+                if st.has_node(key):
+                    st[key] += 1
+                else:
+                    st[key] = 1
+    pprint.pprint(sorted(list(st.iteritems()), reverse=True, key=lambda a: a[1])[:10])
 
 
 '''

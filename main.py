@@ -1,40 +1,23 @@
 import sys
 import os
-import time
 import json
-import numpy as np
-from sklearn.cluster import AffinityPropagation
+
 
 run_id = sys.argv[-1]
 
 data = json.loads(open('./generated_data/{}.json'.format(run_id), 'r').read())
 
-MAX_CLUSTER_COUNT = 15
-
-os.mkdir('./generated_videos/{}'.format(run_id))
+# os.mkdir('./generated_videos/{}'.format(run_id))
 video_data = []
 output = []
 
 for character in data.keys():
-    os.mkdir('./generated_videos/{}/{}'.format(run_id, character))
-    x = np.array(data[character]['data'])
-    x = x.round(decimals=3)
-    idx = np.argwhere(np.all(x[..., :] == 0, axis=0))
-    removed_zeros = np.delete(x, idx, axis=1)
-    x_normed = (removed_zeros - removed_zeros.min(0)) / removed_zeros.ptp(0)
-    clustering = AffinityPropagation(random_state=5).fit(x_normed)
-    clusters = {}
-    for i, cluster in enumerate(clustering.labels_):
-        if cluster in clusters:
-            clusters[cluster].append(data[character]['labels'][i])
-        else:
-            clusters[cluster] = [data[character]['labels'][i]]
-    print(character, len(clusters.keys()))
-    cluster_count = 0
-    for key in clusters:
-        if cluster_count >= MAX_CLUSTER_COUNT:
-            break
-        totalFrames = 0
+    # os.mkdir('./generated_videos/{}/{}'.format(run_id, character))
+    for combo in data[character]:
+        print(combo)
+        break
+
+        '''
         queue = []
         for conv in clusters[key]:
             if totalFrames > 60 * 20:
@@ -54,3 +37,4 @@ for character in data.keys():
 f = open('./generated_json/{}.json'.format(run_id), 'w')
 f.write(json.dumps(output))
 f.close()
+        '''

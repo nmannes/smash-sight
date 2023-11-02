@@ -17,15 +17,15 @@ for character in data.keys():
     if character != 'Captain Falcon':
         continue
     st = trie.StringTrie()
-    for combo in data[character]:
-        for i in range(len(combo[4])):
-            if len(combo[4][:i]) > 0:
-                key = f"{'/'.join(combo[4][:i])}"
-                if st.has_node(key):
-                    st[key] += 1
-                else:
-                    st[key] = 1
-    pprint.pprint(sorted(list(st.iteritems()), reverse=True, key=lambda a: a[1])[:20])
+    for combo in list(sorted(data[character], key= lambda a: len(a[4]))):
+        key = f"{'/'.join(combo[4])}"
+        if not st.has_node(key):
+            st[key] = 1
+        else:
+            st[key] += 1
+        
+    pprint.pprint(sorted(list(st.iteritems()), reverse=True, key=lambda a: a[1])[:10])
+    pprint.pprint(sorted(list(st.iteritems()), key=lambda a: len(a[0].split('/')))[:10])
 
 
 '''

@@ -1,7 +1,8 @@
 import sys
 import os
 import json
-
+import pprint
+from collections import OrderedDict 
 
 run_id = sys.argv[-1]
 
@@ -13,11 +14,21 @@ output = []
 
 for character in data.keys():
     # os.mkdir('./generated_videos/{}/{}'.format(run_id, character))
+    if character != 'Captain Falcon':
+        continue
+    dd = {}
     for combo in data[character]:
-        print(combo)
-        break
+        for i in range(len(combo[4])):
+            key = f"{combo[4][:i]}"
+            if key in dd:
+                dd[key] += 1
+            else:
+                dd[key] = 1 
+    for r in sorted(dd, key=dd.get, reverse=False):
+        print(r, dd[r])
 
-        '''
+
+'''
         queue = []
         for conv in clusters[key]:
             if totalFrames > 60 * 20:
@@ -37,4 +48,4 @@ for character in data.keys():
 f = open('./generated_json/{}.json'.format(run_id), 'w')
 f.write(json.dumps(output))
 f.close()
-        '''
+'''

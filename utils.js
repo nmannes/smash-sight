@@ -325,7 +325,7 @@ function vectorizeFilesV3(files) {
                     c.didKill,
                     c.startFrame,
                     c.moves[c.moves.length - 1].frame,
-                    c.moves.map(m => moveMappings[m.moveId].name || 'other'),
+                    c.moves.map(m => moveMappings[m.moveId] || 'other'),
                     c.moves.map(m => m.frame),
                     files[i],
                 ])

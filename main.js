@@ -21,8 +21,8 @@ const id = crypto.randomUUID()
 
 fs.writeFileSync(`./generated_data/${id}.json`, JSON.stringify(gameData))
 
-console.log('running python analysis')
-
+/*
+console.log('running python analysis');
 
 execSync(`python3 main.py ${id}`, (error, stdout, stderr) => {
     console.log(`stdout: ${stdout}`);
@@ -31,7 +31,6 @@ execSync(`python3 main.py ${id}`, (error, stdout, stderr) => {
         console.log(`exec error: ${error}`);
     }   
 });
-
 console.log('generating replays')
 
 const jsonFilePath = `/home/nathan/Desktop/smash-sight/generated_json/${id}.json`;
@@ -43,3 +42,5 @@ execSync(`cd ../slp-to-video; node slp_to_video ${jsonFilePath}`, (error, stdout
         console.log(`exec error: ${error}`);
     }   
 });
+
+*/

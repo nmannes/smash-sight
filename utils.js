@@ -327,9 +327,11 @@ function vectorizeFilesV3(files) {
                     c.moves[c.moves.length - 1].frame,
                     c.moves.map(m => moveMappings[m.moveId] || 'other'),
                     c.moves.map(m => m.frame),
+                    c.endFrame || c.startFrame + 100,
                     files[i],
                 ])
             })
+            break;
         }
     }
 

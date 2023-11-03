@@ -1,5 +1,5 @@
 import sys
-import os
+import math
 import json
 import pprint
 import pygtrie as trie
@@ -18,34 +18,34 @@ for character in data.keys():
         continue
     st = trie.StringTrie()
     for combo in list(sorted(data[character], key= lambda a: len(a[4]))):
-        key = f"{'/'.join(combo[4])}"
-        if not st.has_node(key):
-            st[key] = 1
-        else:
-            st[key] += 1
+        moves = combo[4]
+        for i, hit in enumerate(moves):
+            l = moves[:i]
+            if len(l) > 0:
+                key = f"{'/'.join(l)}"
+                if not st.has_node(key):
+                    st[key] = []
+                if i == len(moves) - 1:
+                    st[key].append([combo[-1], math.Max(0, combo[3]-30), combo[-2]])
         
-    pprint.pprint(sorted(list(st.iteritems()), reverse=True, key=lambda a: a[1])[:10])
-    pprint.pprint(sorted(list(st.iteritems()), key=lambda a: len(a[0].split('/')))[:10])
-
-
-'''
-        queue = []
-        for conv in clusters[key]:
-            if totalFrames > 60 * 20:
-                break
-            queue.append({
-                "path": conv[4],
-                "startFrame": conv[2],
-                "endFrame": conv[3],
-            })
-            totalFrames += conv[3] - conv[2]
-        output.append({
-            "outputPath": "./generated_videos/{}/{}-{}.mp4".format(run_id, character, key),
-            "queue": queue, 
+    display = sorted(list(st.iteritems()), reverse=True, key=lambda a: len(a[1]))[:15]
+    
+    queue = []
+    totalFrames = 0
+    for conv in display:
+        if totalFrames > 60 * 20:
+            break
+        queue.append({
+            "path": conv[0],
+            "startFrame": conv[1],
+            "endFrame": conv[2],
         })
-        cluster_count += 1
+        totalFrames += conv[2] - conv[1]
+    output.append({
+        "outputPath": "./generated_videos/{}/{}-{}.mp4".format(run_id, character, key),
+        "queue": queue, 
+    })
 
 f = open('./generated_json/{}.json'.format(run_id), 'w')
 f.write(json.dumps(output))
 f.close()
-'''

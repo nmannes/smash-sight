@@ -6,12 +6,12 @@ run_id = sys.argv[-1]
 
 data = json.loads(open('./generated_data/{}.json'.format(run_id), 'r').read())
 
-# os.mkdir('./generated_videos/{}'.format(run_id))
+os.mkdir('./generated_videos/{}'.format(run_id))
 video_data = []
 output = []
 
 for character in data.keys():
-    # os.mkdir('./generated_videos/{}/{}'.format(run_id, character))
+    os.mkdir('./generated_videos/{}/{}'.format(run_id, character))
     if character != 'Captain Falcon':
         continue
     st = trie.StringTrie()

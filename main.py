@@ -1,7 +1,5 @@
 import sys
-import math
 import json
-import pprint
 import pygtrie as trie
 
 run_id = sys.argv[-1]
@@ -26,7 +24,7 @@ for character in data.keys():
                 if not st.has_node(key):
                     st[key] = []
                 if i == len(moves) - 1:
-                    st[key].append([combo[-1], math.Max(0, combo[3]-30), combo[-2]])
+                    st[key].append([combo[-1], max(0, combo[3]-30), combo[-2]])
         
     display = sorted(list(st.iteritems()), reverse=True, key=lambda a: len(a[1]))[:15]
     

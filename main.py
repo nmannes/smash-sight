@@ -31,14 +31,17 @@ for character in data.keys():
     queue = []
     totalFrames = 0
     for conv in display:
-        if totalFrames > 60 * 20:
-            break
-        queue.append({
-            "path": conv[0],
-            "startFrame": conv[1],
-            "endFrame": conv[2],
-        })
-        totalFrames += conv[2] - conv[1]
+        gameData = conv[1]
+        for hit in gameData:
+            if totalFrames > 60 * 20:
+                break
+            print(gameData)
+            queue.append({
+                "path": hit[0],
+                "startFrame": hit[1],
+                "endFrame": hit[2],
+            })
+            totalFrames += hit[2] - hit[1]
     output.append({
         "outputPath": "./generated_videos/{}/{}-{}.mp4".format(run_id, character, key),
         "queue": queue, 

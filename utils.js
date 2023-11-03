@@ -35,6 +35,7 @@ const indexGame = (filepath, playerCode) => {
         playerIndex = 1;
         opponentIndex = 0;
     }
+
     return { game, playerIndex, opponentIndex };
 }
 
@@ -48,20 +49,11 @@ function splitBy(files, playerCode) {
             continue;
         }
         const settings = indexedGame.game.getSettings();
-        // @ts-ignore
-        const key = slp.characters.getCharacterName(settings.players[indexedGame.opponentIndex].characterId);
-        filesByCharacter[key] ||= [];
-        filesByCharacter[key].push(files[i])
+        const oppoID = settings.players[indexedGame.opponentIndex].characterId;
+        // const PID = settings.players[indexedGame.playerIndex].characterId;
+        filesByCharacter[oppoID] ||= [];
+        filesByCharacter[oppoID].push(files[i])
     }
-
-    // culls if less than 20 games
-    /*
-    for (var key in filesByCharacter) {
-        if (filesByCharacter[key].length < 20) {
-            delete filesByCharacter[key]
-        }
-    }
-    */
     return filesByCharacter;
 }
 
@@ -183,123 +175,7 @@ function randomList(n, range) {
     return arr;
 }
 
-function vectorizeFiles(files) {
-    let fullData = {};
-    const playerCode = getPlayerCode(files);
 
-    const groupedGames = splitBy(files, playerCode);
-
-    for (char in groupedGames) {
-        const fileList = groupedGames[char];
-        console.log(char, 'start', fileList.length)
-        let data = [];
-        let labels = [];
-        for (var i = 0; i < fileList.length; i++) {
-            if (i % 25 === 0) console.log('pct complete:', i / fileList.length);
-            const indexedGame = indexGame(files[i], playerCode);
-            const settings = indexedGame.game.getSettings();
-            const stats = indexedGame.game.getStats();
-            const frames = indexedGame.game.getFrames();
-            for (var j = 0; j < stats.conversions.length; j++) {
-                const conversion = stats.conversions[j];
-                if (!conversion) continue;
-
-                if (!(conversion.playerIndex === indexedGame.opponentIndex && conversion.openingType === 'neutral-win')) {
-                    continue;
-                }
-                data.push([
-                    conversion.didKill ? 1 : 0,
-                    vectorizeStage(settings.stageId),
-                    vectorizeMove(conversion.moves[0].moveId),
-                    vectorizePlayers(indexedGame, conversion, frames),
-                ].flat())
-                labels.push([
-                    slp.stages.getStageName(settings.stageId),
-                    slp.moves.getMoveName(conversion.moves[0].moveId),
-                    conversion.startFrame,
-                    conversion.endFrame,
-                    files[i]
-                ])
-            }
-        }
-        fullData[char] = {
-            data,
-            labels
-        }
-    }
-
-    return fullData;
-}
-
-// vectorize a random 2% frames of the files
-// Given the state of a frame:
-// let's get enough info to predict my future position/percent/move in the future.
-function vectorizeFilesV2(files) {
-    let fullData = {};
-    const playerCode = getPlayerCode(files);
-
-    const groupedGames = splitBy(files, playerCode);
-
-    for (char in groupedGames) {
-        const fileList = groupedGames[char];
-        console.log(char, 'start', fileList.length)
-        let data = [];
-        let labels = [];
-        for (var i = 0; i < fileList.length; i++) {
-            if (i % 25 === 0 && i > 0) console.log(char, 'pct complete:', i / fileList.length);
-            const indexedGame = indexGame(files[i], playerCode);
-            const frames = indexedGame.game.getFrames();
-            const maxFrame = _.max(_.keys(frames).map(n => _.toNumber(n)));
-            if (maxFrame < 30 * 60) continue;
-            const settings = indexedGame.game.getSettings();
-            const chosenFrames = randomList(
-                Math.floor((maxFrame - 120) * .01),
-                maxFrame - 120
-            ).map(x => x + 20);
-            for (var j = 0; j < chosenFrames.length; j++) {
-                const f = chosenFrames[j];
-                let dataRow = [
-                    vectorizeStage(settings.stageId),
-                ]
-                for (var k = 0; k < 4; k++) {
-                    dataRow.push(
-                        vectorizePlayerStateV2(
-                            indexedGame.playerIndex,
-                            frames,
-                            j - (k * 5)
-                        )
-                    );
-                    dataRow.push(
-                        vectorizePlayerStateV2(
-                            indexedGame.opponentIndex,
-                            frames,
-                            j - (k * 5)
-                        )
-                    );
-                }
-                let labelRow = [
-                    [
-                        files[i],
-                        f,
-                    ],
-                    vectorizePlayerStateV2(indexedGame.playerIndex, frames, f + 5),
-                    vectorizePlayerStateV2(indexedGame.playerIndex, frames, f + 10),
-                    vectorizePlayerStateV2(indexedGame.playerIndex, frames, f + 20),
-                    vectorizePlayerStateV2(indexedGame.playerIndex, frames, f + 40),
-                ];
-                data.push(dataRow.flat());
-                labelRow.push(labelRow);
-            }
-
-        }
-        fullData[char] = {
-            data,
-            labels
-        }
-    }
-
-    return fullData;
-}
 
 // vectorizeFilesV3: let's get all the data on our own combos
 function vectorizeFilesV3(files) {
@@ -308,9 +184,11 @@ function vectorizeFilesV3(files) {
 
     const groupedGames = splitBy(files, playerCode);
     for (char in groupedGames) {
+        const oppo = slp.characters.getCharacterName(char)
+        if ('Captain Falcon' !== slp.characters.getCharacterName(char)) continue;
         const fileList = groupedGames[char];
         console.log(char, 'start', fileList.length)
-        fullData[char] = []
+        fullData[oppo] = []
         for (var i = 0; i < fileList.length; i++) {
             if (i % 25 === 0 && i > 0) console.log(char, 'pct complete:', i / fileList.length);
             const indexedGame = indexGame(fileList[i], playerCode);
@@ -320,7 +198,7 @@ function vectorizeFilesV3(files) {
                 c.didKill || c.endPercent - c.startPercent > 20
             );
             _.forEach(convs, c => {
-                fullData[char].push([
+                fullData[oppo].push([
                     char,
                     c.didKill,
                     c.startFrame,
@@ -331,7 +209,6 @@ function vectorizeFilesV3(files) {
                     files[i],
                 ])
             })
-            break;
         }
     }
 

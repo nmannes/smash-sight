@@ -12,9 +12,9 @@ video_data = []
 output = []
 
 for character in data.keys():
-    os.mkdir('./generated_videos/{}/{}'.format(run_id, character))
-    if character != 'Captain Falcon':
+    if character is not 'Captain Falcon':
         continue
+    os.mkdir('./generated_videos/{}/{}'.format(run_id, character))
     st = trie.StringTrie()
     for combo in list(sorted(data[character], key= lambda a: len(a[4]))):
         moves = combo[4]
